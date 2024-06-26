@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thai Lotto Number Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-yellow-100 font-sans min-h-screen flex flex-col">
+    <header class="bg-red-600 text-yellow-300 py-4 text-center shadow-lg">
+        <h1 class="text-4xl font-bold">ตัวเลขเด็ด หวยไทย</h1>
+        <p class="text-xl" id="currentTime"></p>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-8">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="numberType">
+                        เลือกประเภทเลข
+                    </label>
+                    <select id="numberType" class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                        <option value="2">2 ตัว</option>
+                        <option value="3">3 ตัว</option>
+                        <option value="6">6 ตัว</option>
+                    </select>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="quantity">
+                        จำนวนชุด
+                    </label>
+                    <input type="number" id="quantity" min="1" max="5" value="1" class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                
+                <button id="generateBtn" class="bg-red-600 hover:bg-red-700 text-yellow-300 font-bold py-2 px-4 rounded-full w-full transition duration-300 ease-in-out transform hover:scale-105">
+                    สร้างเลขเด็ด
+                </button>
+                
+                <div id="result" class="mt-6 text-center"></div>
+            </div>
+        </div>
+
+        <div id="luckyColor" class="mt-8 text-center text-xl font-bold"></div>
+
+        <div id="history" class="mt-8 bg-white rounded-xl shadow-md overflow-hidden max-w-md mx-auto">
+            <h2 class="text-2xl font-bold text-center text-red-600 py-4 bg-yellow-200">ประวัติเลขเด็ด</h2>
+            <ul id="historyList" class="divide-y divide-gray-200 max-h-48 overflow-y-auto"></ul>
+        </div>
+    </main>
+
+    <footer class="bg-red-600 text-yellow-300 py-4 text-center">
+        <p>© 2024 Thai Lotto Number Generator</p>
+    </footer>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const numberType = document.getElementById('numberType');
+        const quantity = document.getElementById('quantity');
+        const result = document.getElementById('result');
+        const historyList = document.getElementById('historyList');
+        const luckyColor = document.getElementById('luckyColor');
+        const currentTime = document.getElementById('currentTime');
+
+        const colors = ['แดง', 'เขียว', 'น้ำเงิน', 'เหลือง', 'ส้ม', 'ม่วง', 'ชมพู', 'ฟ้า'];
+
+        function generateNumber(digits) {
+            let min = Math.pow(10, digits - 1);
+            let max = Math.pow(10, digits) - 1;
+            return Math.floor(Math.random() * (max - min + 1) + min).toString().padStart(digits, '0');
+        }
+
+        function addToHistory(numbers) {
+            const li = document.createElement('li');
+            li.className = 'px-6 py-4 flex justify-between items-center hover:bg-yellow-100';
+            li.innerHTML = `
+                <span class="text-gray-800">${numbers.join(', ')}</span>
+                <span class="text-sm text-gray-500">${new Date().toLocaleTimeString()}</span>
+            `;
+            historyList.prepend(li);
+
+            if (historyList.children.length > 5) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            currentTime.textContent = now.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const digits = parseInt(numberType.value);
+            const sets = parseInt(quantity.value);
+            
+            result.innerHTML = '';
+            const generatedNumbers = [];
+
+            for (let i = 0; i < sets; i++) {
+                const number = generateNumber(digits);
+                generatedNumbers.push(number);
+                
+                const numberElement = document.createElement('div');
+                numberElement.className = 'text-4xl font-bold text-red-600 mb-2 opacity-0 transform scale-0';
+                numberElement.textContent = number;
+                result.appendChild(numberElement);
+
+                setTimeout(() => {
+                    numberElement.classList.add('transition', 'duration-500', 'ease-out');
+                    numberElement.classList.remove('opacity-0', 'scale-0');
+                    numberElement.classList.add('scale-100');
+                }, i * 200);
+            }
+
+            addToHistory(generatedNumbers);
+
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            luckyColor.textContent = `สีมงคลวันนี้: ${randomColor}`;
+        });
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
+    </style>
+</body>
+</html>
